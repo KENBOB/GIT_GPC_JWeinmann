@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] float _speed = 1;
+    [SerializeField] float speed = 8;
+    [SerializeField] float JumpForce = 200;
 
     void Update()
     {
         MoveHorizontal();
+        Jump();
     }
 
     private void MoveHorizontal()
     {
-        var horizontal = Input.GetAxis("Horizontal") * _speed;
+        var horizontal = Input.GetAxis("Horizontal") * speed;
         var rigidbody2D = GetComponent<Rigidbody2D>();
         rigidbody2D.velocity = new Vector2(horizontal, rigidbody2D.velocity.y);
 
@@ -30,6 +32,13 @@ public class Player : MonoBehaviour
             //Turn Player animation to other direction
             var spriteRenderer = GetComponent<SpriteRenderer>();
             spriteRenderer.flipX = horizontal < 0;
+        }
+    }
+    private void Jump()
+    {
+        if(Input.GetButtonDown("Fire1"))
+        {
+            GetComponent<Rigidbody2D>().AddForce(Vector2.up * JumpForce);
         }
     }
 }
