@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] float _speed = 1;
 
-    // Update is called once per frame
     void Update()
     {
         MoveHorizontal();
@@ -18,8 +13,11 @@ public class Player : MonoBehaviour
 
     private void MoveHorizontal()
     {
-        var horizontal = Input.GetAxis("Horizontal");
+        var horizontal = Input.GetAxis("Horizontal") * _speed;
         var rigidbody2D = GetComponent<Rigidbody2D>();
         rigidbody2D.velocity = new Vector2(horizontal, rigidbody2D.velocity.y);
+
+        //Adding a dollar sign allows to place variables in quotes
+        Debug.Log($"Velocity = {rigidbody2D.velocity}");
     }
 }
