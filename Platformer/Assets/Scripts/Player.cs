@@ -19,5 +19,9 @@ public class Player : MonoBehaviour
 
         //Adding a dollar sign allows to place variables in quotes
         Debug.Log($"Velocity = {rigidbody2D.velocity}");
+
+        var animator = GetComponent<Animator>();
+        bool walking = horizontal != 0;
+        animator.SetBool("Walk", walking);
     }
 }
