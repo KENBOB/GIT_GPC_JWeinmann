@@ -17,10 +17,13 @@ public class Player : MonoBehaviour
     {
         var horizontal = Input.GetAxis("Horizontal") * speed;
         var rigidbody2D = GetComponent<Rigidbody2D>();
-        rigidbody2D.velocity = new Vector2(horizontal, rigidbody2D.velocity.y);
-
-        //Adding a dollar sign allows to place variables in quotes
-        Debug.Log($"Velocity = {rigidbody2D.velocity}");
+        
+        if (Mathf.Abs(horizontal) >= 1)
+        {
+            rigidbody2D.velocity = new Vector2(horizontal, rigidbody2D.velocity.y);
+            //Adding a dollar sign allows to place variables in quotes
+            //Debug.Log($"Velocity = {rigidbody2D.velocity}");
+        }
 
         //Walk animation transition status
         var animator = GetComponent<Animator>();
