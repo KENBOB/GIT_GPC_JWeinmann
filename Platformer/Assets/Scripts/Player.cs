@@ -16,10 +16,18 @@ public class Player : MonoBehaviour
     float _fallTimer;
     float _jumpTimer;
 
+    //Components
+    Rigidbody2D _rigidbody2D;
+    Animator _animator;
+    SpriteRenderer _spriteRenderer;
+
     void Start()
     {
         _startPosition = transform.position;
         _jumpsRemaining = _maxJumps;
+        _rigidbody2D = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -31,49 +39,47 @@ public class Player : MonoBehaviour
     void MoveHorizontal()
     {
         var horizontal = Input.GetAxis("Horizontal") * speed;
-        var rigidbody2D = GetComponent<Rigidbody2D>();
         
         if (Mathf.Abs(horizontal) >= 1)
         {
-            rigidbody2D.velocity = new Vector2(horizontal, rigidbody2D.velocity.y);
+            _rigidbody2D.velocity = new Vector2(horizontal, _rigidbody2D.velocity.y);
             //Adding a dollar sign allows to place variables in quotes
             //Debug.Log($"Velocity = {rigidbody2D.velocity}");
         }
 
         //Walk animation transition status
-        var animator = GetComponent<Animator>();
         bool walking = horizontal != 0;
-        animator.SetBool("Walk", walking);
+        _animator.SetBool("Walk", walking);
 
         if (horizontal != 0)
         {
             //Turn Player animation to other direction
-            var spriteRenderer = GetComponent<SpriteRenderer>();
-            spriteRenderer.flipX = horizontal < 0;
+            _spriteRenderer.flipX = horizontal < 0;
         }
     }
 
     void Jump()
     {
-        var rigidbody2D = GetComponent<Rigidbody2D>();
         var hit = Physics2D.OverlapCircle(_feet.position, 0.1f, LayerMask.GetMask("Default"));
         bool isGrounded = hit != null;
 
         if (Input.GetButtonDown("Fire1") && _jumpsRemaining > 0)
         {
-            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpVelocity);
+            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpVelocity);
             _jumpsRemaining--;
+            Debug.Log($"Jumps remaining {_jumpsRemaining}");
             _fallTimer = 0;
             _jumpTimer = 0;
         }
         else if (Input.GetButton("Fire1") && _jumpTimer <= _maxJumpsDuration)
         {
-            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpVelocity);
+            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpVelocity);
             _fallTimer = 0;
-            _jumpTimer += Time.deltaTime;
         }
 
-        if (isGrounded)
+        _jumpTimer += Time.deltaTime;
+
+        if (isGrounded && _fallTimer > 0)
         {
             _fallTimer = 0;
             _jumpsRemaining = _maxJumps;
@@ -82,7 +88,7 @@ public class Player : MonoBehaviour
         {
             _fallTimer += Time.deltaTime;
             var _downForce = _downpull * _fallTimer * _fallTimer;
-            rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, rigidbody2D.velocity.y - _downForce);
+            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _rigidbody2D.velocity.y - _downForce);
         }
     }
 

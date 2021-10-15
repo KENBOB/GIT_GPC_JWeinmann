@@ -2737,11 +2737,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  _jumpVelocity: 10
+  _jumpVelocity: 8
   _maxJumps: 2
   _feet: {fileID: 1194288556}
   _downpull: 0.1
-  _maxJumpsDuration: 0.1
+  _maxJumpsDuration: 0.2
 --- !u!95 &1904878461
 Animator:
   serializedVersion: 3
