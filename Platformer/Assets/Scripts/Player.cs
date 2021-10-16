@@ -15,11 +15,13 @@ public class Player : MonoBehaviour
     int _jumpsRemaining;
     float _fallTimer;
     float _jumpTimer;
+    float _horizontal;
 
     //Components
     Rigidbody2D _rigidbody2D;
     Animator _animator;
     SpriteRenderer _spriteRenderer;
+    bool _isGrounded;
 
     void Start()
     {
@@ -32,64 +34,93 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        UpdateIsGrounded();
+        ReadHorizontalInput();
         MoveHorizontal();
-        Jump();
-    }
 
-    void MoveHorizontal()
-    {
-        var horizontal = Input.GetAxis("Horizontal") * speed;
-        
-        if (Mathf.Abs(horizontal) >= 1)
-        {
-            _rigidbody2D.velocity = new Vector2(horizontal, _rigidbody2D.velocity.y);
-            //Adding a dollar sign allows to place variables in quotes
-            //Debug.Log($"Velocity = {rigidbody2D.velocity}");
-        }
+        UpdateAnimator();
+        UpdateSpriteDirection();
 
-        //Walk animation transition status
-        bool walking = horizontal != 0;
-        _animator.SetBool("Walk", walking);
-
-        if (horizontal != 0)
-        {
-            //Turn Player animation to other direction
-            _spriteRenderer.flipX = horizontal < 0;
-        }
-    }
-
-    void Jump()
-    {
-        var hit = Physics2D.OverlapCircle(_feet.position, 0.1f, LayerMask.GetMask("Default"));
-        bool isGrounded = hit != null;
-
-        if (Input.GetButtonDown("Fire1") && _jumpsRemaining > 0)
-        {
-            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpVelocity);
-            _jumpsRemaining--;
-            Debug.Log($"Jumps remaining {_jumpsRemaining}");
-            _fallTimer = 0;
-            _jumpTimer = 0;
-        }
-        else if (Input.GetButton("Fire1") && _jumpTimer <= _maxJumpsDuration)
-        {
-            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpVelocity);
-            _fallTimer = 0;
-        }
+        if (ShouldStartJump())
+            Jump();
+        else if (ShouldContinueJump())
+            ContinueJump();
 
         _jumpTimer += Time.deltaTime;
 
-        if (isGrounded && _fallTimer > 0)
+        if (_isGrounded && _fallTimer > 0)
         {
             _fallTimer = 0;
             _jumpsRemaining = _maxJumps;
-        } 
+        }
         else
         {
             _fallTimer += Time.deltaTime;
             var _downForce = _downpull * _fallTimer * _fallTimer;
             _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _rigidbody2D.velocity.y - _downForce);
         }
+    }
+
+    void ContinueJump()
+    {
+        _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpVelocity);
+        _fallTimer = 0;
+    }
+
+    bool ShouldContinueJump()
+    {
+        return Input.GetButton("Fire1") && _jumpTimer <= _maxJumpsDuration;
+    }
+
+    void ReadHorizontalInput()
+    {
+        _horizontal = Input.GetAxis("Horizontal") * speed;
+    }
+
+    void MoveHorizontal()
+    {
+        if (Mathf.Abs(_horizontal) >= 1)
+        {
+            _rigidbody2D.velocity = new Vector2(_horizontal, _rigidbody2D.velocity.y);
+            //Adding a dollar sign allows to place variables in quotes
+            //Debug.Log($"Velocity = {rigidbody2D.velocity}");
+        }
+    }
+    
+    void UpdateAnimator()
+    {
+        //Walk animation transition status
+        bool walking = _horizontal != 0;
+        _animator.SetBool("Walk", walking);
+    }
+
+    void UpdateSpriteDirection()
+    {
+        if (_horizontal != 0)
+        {
+            //Turn Player animation to other direction
+            _spriteRenderer.flipX = _horizontal < 0;
+        }
+    }
+
+    void Jump()
+    {
+        _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpVelocity);
+        _jumpsRemaining--;
+        Debug.Log($"Jumps remaining {_jumpsRemaining}");
+        _fallTimer = 0;
+        _jumpTimer = 0;
+    }
+
+    bool ShouldStartJump()
+    {
+        return Input.GetButtonDown("Fire1") && _jumpsRemaining > 0;
+    }
+
+    void UpdateIsGrounded()
+    {
+        var hit = Physics2D.OverlapCircle(_feet.position, 0.1f, LayerMask.GetMask("Default"));
+        _isGrounded = hit != null;
     }
 
     //Kill Player
