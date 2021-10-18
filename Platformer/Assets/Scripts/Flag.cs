@@ -12,7 +12,7 @@ public class Flag : MonoBehaviour
     {
         var player = collision.GetComponent<Player>();
         if (player == null)
-        { return; }
+            return;
 
         var animator = GetComponent<Animator>();
         animator.SetTrigger("Raise");
